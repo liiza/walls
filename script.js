@@ -55,9 +55,10 @@ function scaleWall(object, distance) {
 	}
 }
 
-var game = {
-	state: 1,
-	wall: {
+function generateWall() {
+	var holeX = Math.random() * ((200 - 50) - 10) + 10;
+	var holeY = Math.random() * ((200 - 80) - 10) + 10;
+	return {
 		distance: 10,
 		moving: true,
 		location: {
@@ -69,8 +70,8 @@ var game = {
 		hole: {
 			// Hole location is relative to wall location
 			location: {
-				x: 70,
-				y: 50
+				x: holeX,
+				y: holeY
 			},
 			// Points are relative to the location
 			points: [
@@ -82,7 +83,12 @@ var game = {
 			var obj = scaleWall(this, this.distance);
 			renderWall(obj.hole, obj.height, obj.width, obj.location);
 		}
-	},
+	};
+}
+
+var game = {
+	state: 1,
+	wall: generateWall(), 
 	obj: {
 		distance: 9,
 		color: "red",
@@ -93,8 +99,8 @@ var game = {
 		},
 		// Points are relative to the location
 		points: [
-			{ x: 0, y: 70 },
-			{ x: 40, y: 70 }
+			{ x: 0, y: 65 },
+			{ x: 40, y: 65 }
 		],
 		render: function() {
 			var obj = scalePolygon(this, this.distance);
@@ -123,7 +129,6 @@ function onSegment(p, q, r) {
 function orientation(p, q, r) {
 	var val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
     
-
     if (!val) return 0;  // colinear
     return (val > 0)? 1: 2; // clock or counterclock wise
 }
@@ -234,7 +239,7 @@ function moveObjects() {
 		];
 		if (fitsThroughHole(points, hole)) {
 			console.log('BOOM');
-			game.wall.distance = 10;
+			game.wall = generateWall();
 		} 
 		else {
 			game.state = 0;
@@ -243,16 +248,21 @@ function moveObjects() {
 }
 
 document.addEventListener('keydown', (e) => {
+	if (game.state === 0) {
+		return;
+	}
 	switch(e.key) {
         case "ArrowRight":
-            game.obj.location.x += 1;
+            game.obj.location.x += 5;
             break;
         case "ArrowLeft":
-            game.obj.location.x -= 1;
+            game.obj.location.x -= 5;
             break;
         case "ArrowUp":
+        	game.obj.location.y -= 5;
             break;
         case "ArrowDown":
+         	game.obj.location.y += 5;
             break;
         default:
             break;
